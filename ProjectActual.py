@@ -49,11 +49,14 @@ while(True):
             pSize = input('Enter Project Size: ')
             pPriority = input('Enter Project Priority: ')
             pStatus = "Pending"
-            
-            newProject = Project(pID, pName, pSize, pPriority, pStatus)
-            with open('saveFile.txt' , 'a') as file:
-                file.write(f"{newProject.ID:<15} | {newProject.NAME:<20} | {newProject.SIZE:<15} | {newProject.PRIORITY:<20} | {newProject.STATUS:<15} \n")
-            IDctr+=1
+
+            if(pSize.isdigit() and pPriority.isdigit()):
+                newProject = Project(pID, pName, pSize, pPriority, pStatus)
+                with open('saveFile.txt' , 'a') as file:
+                    file.write(f"{newProject.ID:<15} | {newProject.NAME:<20} | {newProject.SIZE:<15} | {newProject.PRIORITY:<20} | {newProject.STATUS:<15} \n")
+                IDctr+=1
+            else:
+             print('Error: Size and Priority should be integer value')
             
         case 2:
             print('=====VIEW PROJECTS=====')
