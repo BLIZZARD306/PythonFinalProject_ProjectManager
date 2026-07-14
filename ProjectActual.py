@@ -20,7 +20,15 @@ class Project:
         self.SIZE = SIZE
         self.PRIORITY = PRIORITY
         self.STATUS = STATUS
-    
+
+def Check_menu(choices): #Added this validation for menu -Bri
+    """Validation for menu choices, ensures that the user input valid choices"""
+    while True:
+        choice = input("Choice: ")
+        if choice in choices:
+            return choice
+        else:
+            print("Please enter a valid choice from the menu.")
         
 while(True):
     print('=====PROJECT MANAGEMENT SYSTEM=====')
@@ -30,7 +38,8 @@ while(True):
     print('[4] Get Project')
     print('[5] Exit')
     print('===================================')
-    choice = int(input("Choice: "))
+    choice = Check_menu(['1', '2', '3', '4', '5'])
+    choice = int(choice)
     
     match choice:
         case 1:
@@ -52,23 +61,27 @@ while(True):
             print('[b] Completed')
             print('[c] All Projects')
             print('=======================')
-            choice = input('Choice: ')
+            choice = Check_menu(['a', 'b', 'c'])
             
             match choice:
                 case 'a':
                     located = False
                     ID = input('Enter Project ID number: ')
-                    with open('saveFile.txt' , 'r') as file:
-                        lines = file.readlines()
-                        for line in lines:
-                            data = line.split('|')
-                            if data[0].strip() == ID:
-                                located = True
-                                print(f"{data[0].strip():<15} | {data[1].strip():<20} | {data[2].strip():<15} | {data[3].strip():<20} | {data[4].strip():<15}")
-                                break
-                        
-                        if not located:
-                            print("The Project your looking for isn't in the saveFile")
+
+                    if not ID.isdigit():
+                        print("Invalid input. Please enter a valid Project ID number.")
+                    else:
+                        with open('saveFile.txt' , 'r') as file:
+                            lines = file.readlines()
+                            for line in lines:
+                                data = line.split('|')
+                                if data[0].strip() == ID:
+                                    located = True
+                                    print(f"{data[0].strip():<15} | {data[1].strip():<20} | {data[2].strip():<15} | {data[3].strip():<20} | {data[4].strip():<15}")
+                                    break
+                            
+                            if not located:
+                                print("The Project your looking for isn't in the saveFile")
                             
                 case 'b':
                     print('=====COMPLETED PROJECTS=====')
@@ -97,7 +110,7 @@ while(True):
             print('[a] Create Schedule')
             print('[b] View Updated Schedule')
             print('======================S=====')
-            choice = input('Choice: ')
+            choice = Check_menu(['a', 'b'])
             match choice:
                 case 'a':
                     """This part essentially just reads what readlines() return and iterates over it with the for loop.
