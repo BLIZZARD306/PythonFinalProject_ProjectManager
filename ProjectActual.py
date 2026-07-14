@@ -48,7 +48,7 @@ while(True):
             pName = input('Enter Project Name: ')
             pSize = input('Enter Project Size: ')
             pPriority = input('Enter Project Priority: ')
-            pStatus = input('Enter Project Status: ')
+            pStatus = "Pending"
             
             newProject = Project(pID, pName, pSize, pPriority, pStatus)
             with open('saveFile.txt' , 'a') as file:
@@ -97,19 +97,33 @@ while(True):
                 case 'c':
                     """This part essentially just reads what readlines() return and iterates over it with the for loop.
                     It'll then print all the lines, thereafter."""
-                    with open('saveFile.txt' , 'r') as file:
-                        lines = file.readlines()
-                        if len(lines) == 1:
-                            print('There are no projects currently saved.')
-                        else:
-                            for line in lines:
-                                print(line)
+                    with open('saveFile.txt', 'r') as f1, open('completedProjects.txt', 'r') as f2:
+                        active_lines = f1.readlines()
+                        completed_lines = f2.readlines()                    
+                    combined_data = []                   
+                    # Skip the first line (headers) of both files using [1:]
+                    if len(active_lines) > 1:
+                        combined_data.extend([line.strip() for line in active_lines[1:] if not line.isspace()])
+                    if len(completed_lines) > 1:
+                        combined_data.extend([line.strip() for line in completed_lines[1:] if not line.isspace()])                   
+                    # Check if there are actually any projects in the combined list
+                    if not combined_data:
+                        print('There are no projects currently saved in either file.')
+                    else:
+                        # Sort the combined list (Default sorts by PROJECTID since it's the first string)
+                        combined_data.sort() 
+                        # Print a single, unified header
+                        print(f"{'PROJECTID':<15} | {'PROJECTNAME':<20} | {'PROJECTSIZE':<15} | {'PROJECTPRIORITY':<20} | {'PROJECTSTATUS':<15}")
+                        # Display all sorted projects
+                        for line in combined_data:
+                            print(line)
+                    print()
                                 
         case 3:
             print('=====SCHEDULE PROJECTSS=====')
             print('[a] Create Schedule')
             print('[b] View Updated Schedule')
-            print('======================S=====')
+            print('===========================')
             choice = Check_menu(['a', 'b'])
             match choice:
                 case 'a':
@@ -166,13 +180,31 @@ while(True):
                     print(f"{data['ID']:<15} | {data['NAME']:<20} | {data['SIZE']:<15} | {data['PRIORITY']:<20} | {data['STATUS']:<15}")
                 print('========================')
                 
+                
+                completed_id = ScheduleProjectsList[0]['ID'] # 1. Save the ID before you pop it so we can use it to filter saveFile.txt
                 print(f"Project: {ScheduleProjectsList[0]['ID']} was removed\n")
                 
                 with open('completedProjects.txt', 'a') as file:
-                    file.write(f"{ScheduleProjectsList[0]['ID']:<15} | {ScheduleProjectsList[0]['NAME']:<20} | {ScheduleProjectsList[0]['SIZE']:<15} | {ScheduleProjectsList[0]['PRIORITY']:<20} | {ScheduleProjectsList[0]['STATUS']:<15}\n")
+                    file.write(f"{ScheduleProjectsList[0]['ID']:<15} | {ScheduleProjectsList[0]['NAME']:<20} | {ScheduleProjectsList[0]['SIZE']:<15} | {ScheduleProjectsList[0]['PRIORITY']:<20} | {'Finished':<15}\n")
                 
                 ScheduleProjectsList.pop(0)
                 
+                # Read all current lines in the save file
+                with open('saveFile.txt', 'r') as file:
+                    lines = file.readlines()
+                
+                # Overwrite the save file, keeping only the header and projects that DO NOT match the completed_id
+                with open('saveFile.txt', 'w') as file:
+                    for line in lines:
+                        if line.isspace():
+                            continue
+                        
+                        data = line.split('|')
+                        
+                        # If the line is the header OR the ID doesn't match the one we just completed, write it back
+                        if data[0].strip() == 'PROJECTID' or data[0].strip() != completed_id:
+                            file.write(line)
+
                 print('=====CURRENT QUEUE=====')
                 print(f"{'PROJECTID':<15} | {'PROJECTNAME':<20} | {'PROJECTSIZE':<15} | {'PROJECTPRIORITY':<20} | {'PROJECTSTATUS':<15} \n")
                 for data in ScheduleProjectsList:
